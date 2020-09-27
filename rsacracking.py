@@ -1,7 +1,5 @@
 """
 Christopher Kramer
-RSAcracking.py
-Assignment 3
 
 exponential function:
 $f(x) = 2^{(x-24)}$
