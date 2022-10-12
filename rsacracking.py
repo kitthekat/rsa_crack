@@ -27,17 +27,42 @@ PrimeFactor = int
 PrimeMultiple = int
 
 
-def isPrime(p: int) -> bool:
-    def prime_checker(p):
-        for i in range(2, ceil(sqrt(p))):
-            if eq(p % i, 0): return False
-        return True
-    return prime_checker(p)
+def is_prime(p: int) -> bool:
+    """Testing for prime number
 
+    Checks if a number is prime by iterating until the 
+    ceiling rounded squareroot of the desired number.
+
+    During iteration, if any values evenly denominate 
+    into the desired number, the number is not prime 
+    """
+    for i in range(2, ceil(sqrt(p))):
+        if eq(p % i, 0): return False
+    return True
+
+def is_prime_test(p: int) -> bool:
+    """Generator-based prime finder
+    
+    Test function to see if testing primes is more 
+    efficient with generators. It's not.
+
+    Checks if a number is prime by iterating until the 
+    ceiling rounded squareroot of the desired number.
+
+    During iteration, if any values evenly denominate 
+    into the desired number, the number is not prime 
+    """
+    def prime_checker(p):
+        i = 2
+        while i < ceil(sqrt(p)):
+            yield eq(p % i, 0)
+            i+=1
+        yield True
+    return not(any(prime_checker(p)))
 
 def nBitPrime(n: BitLength) -> int:
     num = random.randint(0, 2**n)
-    return num if all([gt(num, 2), isPrime(num)]) else nBitPrime(n)
+    return num if all([gt(num, 2), is_prime(num)]) else nBitPrime(n)
 
 
 def factor(pq: PrimeMultiple) -> NoReturn:
