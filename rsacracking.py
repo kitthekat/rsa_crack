@@ -19,7 +19,7 @@ Exports result of iterative cracking to Excel.
 import random
 from datetime import datetime
 from math import sqrt, ceil
-from operator import eq, mod
+from operator import eq, mod, lt
 from sys import argv
 from typing import NoReturn, Optional
 
@@ -85,7 +85,7 @@ def n_bit_prime_generator(n: int = 256) -> int:
     return num if is_prime(num) else n_bit_prime_generator(n)
 
 
-def factor(pq: int) -> Optional[bool]:
+def factor(pq: int) -> NoReturn:
     """Factoring prime numbers
     
     Finds a factor of a prime multiple.
@@ -97,8 +97,9 @@ def factor(pq: int) -> Optional[bool]:
     pq: PrimeMultiple
         an integer representing a potential prime multiple
     """
-    i = 0
-    while not(eq(mod(pq, i), 0)): i += 1
+    i = 2
+    while not(eq(mod(pq, i), 0)) and lt(i, ceil(sqrt(pq))):
+        i += 1
     print(f'found: {i}')
 
 
