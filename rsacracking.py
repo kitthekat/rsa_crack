@@ -1,6 +1,9 @@
 """
 Christopher Kramer
 
+Proof of RSA encryption security using algorithms to show time complexity
+of cracking prime numbers of user-defined bit length.
+
 exponential function:
 $f(x) = 2^{(x-24)}$
 $f(1024) \approx 1.0715 x 10^304 milliseconds \approx 3.3 x 10^293 years$
@@ -16,7 +19,7 @@ from datetime import datetime
 from math import sqrt, ceil
 from operator import gt, eq, mod
 from sys import argv
-from typing import NoReturn
+from typing import NoReturn, Optional
 
 import pandas as pd
 
@@ -84,7 +87,7 @@ def n_bit_prime_generator(n: BitLength = 256) -> int:
     return num if is_prime(num) else n_bit_prime_generator(n)
 
 
-def factor(pq: PrimeMultiple) -> NoReturn:
+def factor(pq: PrimeMultiple) -> Optional[bool]:
     for i in range(2, pq + 1):
         if eq(mod(pq, i), 0):
             print(f'found: {i}')
