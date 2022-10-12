@@ -12,22 +12,18 @@ USAGE:
 python rsacracking.py [optional n]
 
 Where n = the ceiling of bit lengths to test (15, 16, ..., n)
+
+Exports result of iterative cracking to Excel.
 """
 
 import random
 from datetime import datetime
 from math import sqrt, ceil
-from operator import gt, eq, mod
+from operator import eq, mod
 from sys import argv
 from typing import NoReturn, Optional
 
 import pandas as pd
-
-#  typehints
-BitCeiling = int
-BitLength = int
-PrimeFactor = int
-PrimeMultiple = int
 
 
 def is_prime(p: int) -> bool:
@@ -45,8 +41,9 @@ def is_prime(p: int) -> bool:
         A suspected prime integer
     """
     for i in range(2, ceil(sqrt(p))):
-        if eq(p % i, 0): return False
+        if eq(mod(p, i), 0): return False
     return True
+
 
 def is_prime_test(p: int) -> bool:
     """Generator-based prime number tester
@@ -73,10 +70,11 @@ def is_prime_test(p: int) -> bool:
         yield True 
     return not(any(prime_checker(p)))
 
-def n_bit_prime_generator(n: BitLength = 256) -> int:
+
+def n_bit_prime_generator(n: int = 256) -> int:
     """Bit prime generator
     
-    Generates an n-bit prime number based on parameter recursively.
+    Recursively generates an n-bit prime number based on parameter.
  
     Parameters
     -----------
@@ -87,24 +85,53 @@ def n_bit_prime_generator(n: BitLength = 256) -> int:
     return num if is_prime(num) else n_bit_prime_generator(n)
 
 
-def factor(pq: PrimeMultiple) -> Optional[bool]:
-    for i in range(2, pq + 1):
-        if eq(mod(pq, i), 0):
-            print(f'found: {i}')
-            return True
+def factor(pq: int) -> Optional[bool]:
+    """Factoring prime numbers
+    
+    Finds a factor of a prime multiple.
+    Similar to is_prime function, but prints
+    factor instead of assessing truthiness.
+
+    Parameters
+    ----------
+    pq: PrimeMultiple
+        an integer representing a potential prime multiple
+    """
+    i = 0
+    while not(eq(mod(pq, i), 0)): i += 1
+    print(f'found: {i}')
 
 
-def timer(n: BitLength) -> tuple:
+def timer(n: int) -> tuple:
+    """Time encryption
+    
+    Times factoring of a prime multiple to show extensibility of RSA encryption.
+    """
     pq = n_bit_prime_generator(n) * n_bit_prime_generator(n)
     print(f'pq:{pq}')
     start = datetime.now()
     factor(pq)
     stop = datetime.now() - start
     print(stop)
-    return datetime.now() - start, pq
+    return stop, pq
 
 
-def main(y: BitCeiling) -> NoReturn:
+def main(y: int) -> NoReturn:
+    """Driver function
+    
+    Driver function for prime factoring functionality. 
+    
+    Tests different bitlengths up to user-defined bit ceiling
+    and outputs timing to crack into DataFrame.
+
+    DataFrame is exported into excel file for review.
+
+    Parameters
+    -----------
+    y : int
+        Bit ceiling representing cracking iteration max
+
+    """
     df = pd.DataFrame(list(range(15, y)), columns=['BITS'])
     df[['Seconds', 'PQ']] = pd.DataFrame(df['BITS'].apply(timer).to_list(), index=df.index)
     df.to_excel('times.xlsx')
@@ -115,5 +142,6 @@ if __name__ == "__main__":
         assert int(argv[-1])
         n = int(argv[-1])
     except ValueError:
+        print('Invalid input parameter, using bit ceiling n = 24 instead.')
         n = 24
     main(n)
