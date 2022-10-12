@@ -28,30 +28,11 @@ from sys import argv
 from typing import NoReturn
 
 from functional import seq
+from sympy import isprime
 
 import sys
 
 sys.setrecursionlimit(10**6)
-
-
-def is_prime(p: int) -> bool:
-    """Testing for prime number
-
-    Checks if a number is prime by iterating until the 
-    ceiling rounded square root of the desired number.
-
-    During iteration, if any values evenly denominate 
-    into the desired number, the number is not prime
-
-    Parameters
-    -----------
-    p : int
-        A suspected prime integer
-    """
-    for i in range(2, ceil(sqrt(p))):
-        if eq(mod(p, i), 0): return False
-    return True
-    return any(map(lambda i: not(eq(mod(p, i), 0)), range(2, ceil(sqrt(p)))))
 
 
 def n_bit_prime_generator(n: int = 256) -> int:
@@ -64,7 +45,7 @@ def n_bit_prime_generator(n: int = 256) -> int:
     n : int
         Whole number indicating the bit size prime number to return (e.g. '256', '1028')
     """
-    return num if is_prime(num := random.randint(2, 2 ** n)) else n_bit_prime_generator(n)
+    return num if isprime(num := random.randint(2, 2 ** n)) else n_bit_prime_generator(n)
 
 
 def factor(pq: int, __i: int = 2) -> NoReturn:
@@ -82,7 +63,14 @@ def factor(pq: int, __i: int = 2) -> NoReturn:
     __i: int
         iterable value used for recursion
     """
-    print(f'found: {__i}') if all([not(eq(mod(pq, __i), 0)), lt(__i, ceil(sqrt(pq)))]) else factor(pq, __i + 1)
+    i = 2
+    while not(eq(mod(pq, i), 0)) and lt(i, ceil(sqrt(pq))):
+        i += 1
+    print(f'found: {i}')
+    # if not(eq(mod(pq, __i), 0)) and lt(__i, ceil(sqrt(pq))):
+    #     factor(pq, __i + 1)
+    # print(f'found: {__i}')
+    # print(f'found: {__i}') if not all([not(eq(mod(pq, __i), 0)), lt(__i, ceil(sqrt(pq)))]) else factor(pq, __i + 1)
 
 
 def timer(n: int) -> tuple:
@@ -92,7 +80,7 @@ def timer(n: int) -> tuple:
     """
     return (
                start := datetime.now(),
-               factor(n_bit_prime_generator(n) * n_bit_prime_generator(n)),
+               (pq := n_bit_prime_generator(n) * n_bit_prime_generator(n), factor(pq))[0],
                datetime.now() - start
            )[1:]
 
@@ -116,7 +104,7 @@ def main(y: int) -> NoReturn:
     (
         seq(range(15, y))  # convert nbits range to functional sequence
         .map(lambda x: (x, timer(x)))  # map timer function, but keep original sequence
-        .map(lambda x: (x[0], x[1][0], x[1][1]))  # timer outputs a tuple, so unpacking
+        .map(lambda x: (x[0], x[1][1], x[1][0]))  # timer outputs a tuple, so unpacking
         .to_pandas(columns=['BITS', 'Seconds', 'PQ'])
         .to_excel('times.xlsx')
     )
