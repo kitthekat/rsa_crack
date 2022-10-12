@@ -34,14 +34,19 @@ def is_prime(p: int) -> bool:
     ceiling rounded squareroot of the desired number.
 
     During iteration, if any values evenly denominate 
-    into the desired number, the number is not prime 
+    into the desired number, the number is not prime
+
+    Parameters
+    -----------
+    p : int
+        A suspected prime integer
     """
     for i in range(2, ceil(sqrt(p))):
         if eq(p % i, 0): return False
     return True
 
 def is_prime_test(p: int) -> bool:
-    """Generator-based prime finder
+    """Generator-based prime number tester
     
     Test function to see if testing primes is more 
     efficient with generators. It's not.
@@ -50,19 +55,33 @@ def is_prime_test(p: int) -> bool:
     ceiling rounded squareroot of the desired number.
 
     During iteration, if any values evenly denominate 
-    into the desired number, the number is not prime 
+    into the desired number, the number is not prime
+
+    Parameters
+    -----------
+    p : int
+        A suspected prime integer
     """
     def prime_checker(p):
         i = 2
         while i < ceil(sqrt(p)):
             yield eq(p % i, 0)
             i+=1
-        yield True
+        yield True 
     return not(any(prime_checker(p)))
 
-def nBitPrime(n: BitLength) -> int:
-    num = random.randint(0, 2**n)
-    return num if all([gt(num, 2), is_prime(num)]) else nBitPrime(n)
+def n_bit_prime_generator(n: BitLength = 256) -> int:
+    """Bit prime generator
+    
+    Generates an n-bit prime number based on parameter recursively.
+ 
+    Parameters
+    -----------
+    n : int
+        Whole number indicating the bit size prime number to return (e.g. '256', '1028')
+    """
+    num = random.randint(2, 2**n)
+    return num if is_prime(num) else n_bit_prime_generator(n)
 
 
 def factor(pq: PrimeMultiple) -> NoReturn:
@@ -73,7 +92,7 @@ def factor(pq: PrimeMultiple) -> NoReturn:
 
 
 def timer(n: BitLength) -> tuple:
-    pq = nBitPrime(n) * nBitPrime(n)
+    pq = n_bit_prime_generator(n) * n_bit_prime_generator(n)
     print(f'pq:{pq}')
     start = datetime.now()
     factor(pq)
