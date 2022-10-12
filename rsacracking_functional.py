@@ -32,7 +32,7 @@ from sympy import isprime
 
 import sys
 
-sys.setrecursionlimit(10**6)
+sys.setrecursionlimit(10**9)
 
 
 def n_bit_prime_generator(n: int = 256) -> int:
@@ -48,12 +48,22 @@ def n_bit_prime_generator(n: int = 256) -> int:
     return num if isprime(num := random.randint(2, 2 ** n)) else n_bit_prime_generator(n)
 
 
-def factor(pq: int, __i: int = 2) -> NoReturn:
+def factor(pq: int) -> NoReturn:
     """Factoring prime numbers
-    
+
     Finds a factor of a prime multiple.
     Similar to is_prime function, but prints
     factor instead of assessing truthiness.
+
+    Functional programming note:
+    This could be written recursively as
+
+        factor(pq, __i + 1) if not(eq(mod(pq, __i), 0)) and lt(__i, ceil(sqrt(pq))) \\
+            else print('found: {__i}')
+
+    if a parameter __i = 2 is added to the function definition.
+    However, this hits python's recursion limit, even with maxing
+    Window recursion setting. Therefor this is left as-is.
 
     Parameters
     ----------
@@ -64,13 +74,9 @@ def factor(pq: int, __i: int = 2) -> NoReturn:
         iterable value used for recursion
     """
     i = 2
-    while not(eq(mod(pq, i), 0)) and lt(i, ceil(sqrt(pq))):
+    while not (eq(mod(pq, i), 0)) and lt(i, ceil(sqrt(pq))):
         i += 1
     print(f'found: {i}')
-    # if not(eq(mod(pq, __i), 0)) and lt(__i, ceil(sqrt(pq))):
-    #     factor(pq, __i + 1)
-    # print(f'found: {__i}')
-    # print(f'found: {__i}') if not all([not(eq(mod(pq, __i), 0)), lt(__i, ceil(sqrt(pq)))]) else factor(pq, __i + 1)
 
 
 def timer(n: int) -> tuple:
